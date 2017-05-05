@@ -1,3 +1,8 @@
+Authentication is sent either via HTTP header 'Authorization' (Authorization: Bearer token), or cookie 'token'
+Web clients are advised to use cookie if possible
+
+
+------------------------------------------------------------------------------------------------------------------------
 Register user:
 
 POST /register/ {"email": "wooque@gmail.com", "username": "wooque", "first_name": "Vuk", "last_name": "Mirovic", "password": "123"}
