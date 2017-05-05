@@ -9,3 +9,8 @@ likes=2
 Run bot with:
 
 python bot.py
+
+
+NOTE:
+it's advised to run Django with test settings (export DJANGO_SETTINGS_MODULE=social_network.settings.test)
+because email_checker is disabled

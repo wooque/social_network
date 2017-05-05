@@ -6,7 +6,7 @@ from random import randint, choice
 
 from faker import Faker
 
-from api import API
+from api import API, APIError
 from config import get_config
 
 
@@ -46,7 +46,7 @@ class Bot(object):
         except Exception as e:
             raise ValidationError(e)
 
-    def generate_users_posts(self):
+    def generate_users_posts(self, num_users=None):
         """
             :returns
             [
@@ -70,10 +70,13 @@ class Bot(object):
         users = []
         usernames = []
 
-        for i in range(self.config.users):
+        num_users = num_users or self.config.users
+        for i in range(num_users):
             name = fake.first_name()
             while name in usernames:
                 name = fake.first_name()
+
+            usernames.append(name)
             user = dict(
                 first_name=name, last_name=fake.last_name(),
                 username=name.lower(), email=fake.email(), password=fake.password(),
@@ -128,6 +131,7 @@ class Bot(object):
                         for post_map in users_posts_num_likes.values()
                         for k in post_map.keys() if
                         k not in user['likes']]
+
             while len(post_ids) and likes_left > 0:
                 like_post = choice(post_ids)
                 user['likes'].append(like_post)
@@ -135,29 +139,46 @@ class Bot(object):
                 like_user = post_authors[like_post]
                 users_posts_num_likes[like_user][like_post] += 1
                 likes_left -= 1
+
                 if all(nl > 0 for nl in users_posts_num_likes[like_user].values()):
                     del users_posts_num_likes[like_user]
+
                 post_ids = [k
                             for post_map in users_posts_num_likes.values()
                             for k in post_map.keys() if
                             k not in user['likes']]
         return users
 
-    def run(self, user_data=None):
-        if not user_data:
-            user_data = self.generate_users_posts()
-
-        self.validate(user_data)
-
+    def run(self, new_user_data=None):
         user_apis = []
-        for ud in user_data:
+        user_data = []
+
+        if new_user_data:
+            self.validate(new_user_data)
+        else:
+            new_user_data = self.generate_users_posts()
+
+        for ud in new_user_data:
             params = ud.copy()
             del params['posts']
-            user_api = self.api.register_user(**params)
+            try:
+                user_api = self.api.register_user(**params)
+            except APIError:
+                print("Couldn't create user with email: {}".format(params['email']))
+                print("Existing")
+                return
+
             user_api.login()
             user_apis.append(user_api)
+            user_data.append(ud)
 
-        print("Registered {} users".format(len(user_data)))
+        print("Registered {} users:".format(len(user_data)))
+        for u in user_data:
+            print(
+                'User: username: {}, email: {}, first: {}, last: {}'.format(
+                    u['username'], u['email'], u['first_name'], u['last_name']
+                )
+            )
 
         for api, ud in zip(user_apis, user_data):
             for p in ud['posts']:

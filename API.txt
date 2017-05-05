@@ -1,0 +1,115 @@
+Register user:
+
+POST /register/ {"email": "wooque@gmail.com", "username": "wooque", "first_name": "Vuk", "last_name": "Mirovic", "password": "123"}
+
+Returns HTTP 201 {"token": "token", "id": 1}
+
+------------------------------------------------------------------------------------------------------------------------
+Login user:
+
+POST /login/ {"username": "wooque", "password": "123"}
+
+Returns HTTP 200 {"token": "token", "id": 1}
+
+------------------------------------------------------------------------------------------------------------------------
+Get user profile:
+
+GET /v1/users/1/[?page=1]
+
+Returns HTTP 200 {
+    "email": "wooque@gmail.com", "username": "wooque", "first_name": "Vuk", "last_name": "Mirovic", "password": "123",
+    "facebook": "wooque", "twitter": "wooque", "avatar": "http://gravatar.com/wooque",
+    "posts": [
+        // user posts
+        "count": 15,
+        "next": "http://127.0.0.1:8000/v1/users/1/?page=2",
+        "previous": null,
+        "result": [
+            {
+                "id": 123,
+                "created": 1473534534534,
+                "type": "text",
+                "text": "test",
+                "likes": 3
+            },...
+        ]
+    ]
+}
+
+------------------------------------------------------------------------------------------------------------------------
+Update user profile:
+
+POST /v1/users/1/ {
+    "email": "wooque@gmail.com", "username": "wooque", "first_name": "Vuk", "last_name": "Mirovic", "password": "123",
+    "facebook": "wooque", "twitter": "wooque", "avatar": "http://gravatar.com/wooque"
+}
+
+Returns HTTP 204
+
+------------------------------------------------------------------------------------------------------------------------
+Delete user profile:
+
+DELETE /v1/users/1/
+
+Returns HTTP 204
+
+------------------------------------------------------------------------------------------------------------------------
+
+List posts:
+
+GET /v1/posts/[?page=1]
+
+Returns HTTP 200 {
+    "count": 15,
+    "next": "http://127.0.0.1:8000/v1/posts/?page=2",
+    "previous": null,
+    "result": [
+        {
+            "id": 123,
+            "created": 1473534534534,
+            "type": "text",
+            "text": "test",
+            "likes": 3
+        },...
+    ]
+}
+
+------------------------------------------------------------------------------------------------------------------------
+Post post:
+
+POST /v1/posts/ {"text": "test", ["post_type": "text|url"]}
+
+Returns HTTP 201 {"id": 1}
+
+------------------------------------------------------------------------------------------------------------------------
+Update post:
+
+POST /v1/posts/1/ { "text": "test2" }
+
+Returns HTTP 204
+
+------------------------------------------------------------------------------------------------------------------------
+
+Delete post:
+
+DELETE /v1/posts/1/
+
+Returns HTTP 204
+
+------------------------------------------------------------------------------------------------------------------------
+
+Like post:
+
+POST /v1/posts/1/like/
+
+Returns HTTP 204
+
+------------------------------------------------------------------------------------------------------------------------
+
+Unlike post:
+
+DELETE /v1/posts/1/like/
+
+Returns HTTP 204
+
+------------------------------------------------------------------------------------------------------------------------
