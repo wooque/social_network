@@ -111,9 +111,12 @@ class Bot(object):
             ]
         """
         users = []
+        # mapping of users to their posts and respective like count
         users_posts_num_likes = defaultdict(dict)
+        # mapping of post ids to usernames of authors
         post_authors = {}
 
+        # populate users_posts_num_likes and post_authors with initial data
         for user in created_users_posts:
             for p in user['posts']:
                 post_id = p['id']
@@ -123,10 +126,13 @@ class Bot(object):
                 user['likes'] = []
                 users.append(user)
 
+        # map of usernames to users, ordered by number of posts in descending order
         user_map = OrderedDict((u['username'], u) for u in sorted(users, key=lambda u: len(u['posts']), reverse=True))
 
         for user in user_map.values():
             likes_left = self.config.likes
+
+            # available posts to like
             post_ids = [k
                         for post_map in users_posts_num_likes.values()
                         for k in post_map.keys() if
@@ -140,6 +146,7 @@ class Bot(object):
                 users_posts_num_likes[like_user][like_post] += 1
                 likes_left -= 1
 
+                # if there is no other posts with zero likes, remove from consideration
                 if all(nl > 0 for nl in users_posts_num_likes[like_user].values()):
                     del users_posts_num_likes[like_user]
 
